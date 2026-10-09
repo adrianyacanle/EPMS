@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Edit My Profile</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="dashboard-page">
+
+    <div class="dashboard">
+
+        <aside class="sidebar">
+
+
+            <nav>
+                <a href="employee-dashboard.html">Dashboard</a>
+
+                <a href="#" id="profileLink">
+                    View My Profile
+                </a>
+
+                <a href="edit-profile.html" class="active">
+                    Edit My Profile
+                </a>
+            </nav>
+
+            <a href="login.html" class="logout">
+                Logout
+            </a>
+
+        </aside>
+
+
+        <main class="main-content">
+
+            <div class="top-bar">
+
+                <h1>Edit My Profile</h1>
+
+                <div class="admin">
+                    Employee 👤
+                </div>
+
+            </div>
+
+
+            <div class="profile-card">
+
+                <h2>Edit Information</h2>
+
+                <form id="editForm">
+
+                    <input type="hidden" id="username" name="username">
+
+
+                    <label for="email">
+                        Email
+                    </label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                    >
+
+
+                    <label for="contact">
+                        Contact Number
+                    </label>
+
+                    <input
+                        type="text"
+                        id="contact"
+                        name="contact"
+                    >
+
+
+                    <label for="department">
+                        Department
+                    </label>
+
+                    <select id="department" name="department">
+
+                        <option value="">
+                            Select Department
+                        </option>
+
+                        <option value="IT">
+                            IT
+                        </option>
+
+                        <option value="Human Resources">
+                            Human Resources
+                        </option>
+
+                        <option value="Finance">
+                            Finance
+                        </option>
+
+                        <option value="Accounting">
+                            Accounting
+                        </option>
+
+                        <option value="Marketing">
+                            Marketing
+                        </option>
+
+                        <option value="Sales">
+                            Sales
+                        </option>
+
+                        <option value="Operations">
+                            Operations
+                        </option>
+
+                    </select>
+
+
+                    <button type="submit">
+                        Save Changes
+                    </button>
+
+                </form>
+
+            </div>
+
+        </main>
+
+    </div>
+
+
+    <script>
+
+const params = new URLSearchParams(window.location.search);
+const username = params.get("username");
+
+if (username) {
+
+    document.getElementById("username").value = username;
+
+    document.getElementById("profileLink").href =
+        "my-profile.html?username=" +
+        encodeURIComponent(username);
+
+
+    fetch("/cgi-bin/web_profile.exe?username=" +
+          encodeURIComponent(username))
+
+        .then(response => response.text())
+
+        .then(data => {
+
+            console.log(data);
+
+            const parser = new DOMParser();
+
+            const doc =
+                parser.parseFromString(data, "text/html");
+
+
+            const paragraphs =
+                doc.querySelectorAll("p");
+
+
+            paragraphs.forEach(function(p) {
+
+                const text = p.textContent.trim();
+
+
+                if (text.includes("Email:")) {
+
+                    document.getElementById("email").value =
+                        text.replace("Email:", "").trim();
+
+                }
+
+
+                if (text.includes("Contact Number:")) {
+
+                    document.getElementById("contact").value =
+                        text.replace("Contact Number:", "").trim();
+
+                }
+
+
+                if (text.includes("Department:")) {
+
+                    document.getElementById("department").value =
+                        text.replace("Department:", "").trim();
+
+                }
+
+            });
+
+        })
+
+        .catch(function(error) {
+
+            console.error(
+                "Error loading employee information:",
+                error
+            );
+
+        });
+
+}
+
+
+document.getElementById("editForm").addEventListener(
+    "submit",
+    function(event) {
+
+        event.preventDefault();
+
+        const username =
+            document.getElementById("username").value;
+
+        const email =
+            document.getElementById("email").value;
+
+        const contact =
+            document.getElementById("contact").value;
+
+        const department =
+            document.getElementById("department").value;
+
+
+        const url =
+            "/cgi-bin/web_update_profile.exe?" +
+            "username=" + encodeURIComponent(username) +
+            "&email=" + encodeURIComponent(email) +
+            "&contact=" + encodeURIComponent(contact) +
+            "&department=" + encodeURIComponent(department);
+
+
+        window.location.href = url;
+
+    }
+);
+
+</script>
+
+</body>
+
+</html>

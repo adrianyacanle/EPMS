@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>My Profile</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="dashboard-page">
+
+    <div class="dashboard">
+
+        <aside class="sidebar">
+
+            <nav>
+                <a href="#" onclick="goTo('employee-dashboard.html')">Dashboard</a>
+                <a href="#" onclick="viewProfile()">My Profile</a>
+                <a href="#" onclick="goTo('employee-settings.html')">Settings</a>
+            </nav>
+
+            <a href="index.html" class="logout" onclick="sessionStorage.removeItem('username')">Logout</a>
+
+        </aside>
+
+        <main class="main-content">
+
+            <div class="top-bar">
+                <h1>My Profile</h1>
+
+                <div class="admin">
+                    Employee
+                </div>
+            </div>
+
+            <div class="profile-card">
+
+                <h2>Personal Information</h2>
+
+                <p><strong>Employee ID:</strong> <span id="employeeID">Loading...</span></p>
+                <p><strong>Name:</strong> <span id="name">Loading...</span></p>
+                <p><strong>Department:</strong> <span id="department">Loading...</span></p>
+                <p><strong>Date Hired:</strong> <span id="dateHired">Loading...</span></p>
+                <p><strong>Email:</strong> <span id="email">Loading...</span></p>
+                <p><strong>Contact Number:</strong> <span id="contactNumber">Loading...</span></p>
+
+                <button class="edit-profile-btn" onclick="editProfile()">
+                    Edit Profile
+                </button>
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <script>
+        // ---- 1. Get the username (from URL, or from saved storage) ----
+        const params = new URLSearchParams(window.location.search);
+        let username = params.get("username");
+
+        if (username) {
+            sessionStorage.setItem("username", username);   // save it
+        } else {
+            username = sessionStorage.getItem("username");  // recover it
+        }
+
+        // ---- 2. Navigation helpers ----
+        function goTo(page) {
+            if (username) {
+                window.location.href = page + "?username=" + encodeURIComponent(username);
+            } else {
+                window.location.href = page;
+            }
+        }
+
+        function viewProfile() {
+            goTo("my-profile.html");
+        }
+
+        function editProfile() {
+            if (username) {
+                goTo("edit-profile.html");
+            } else {
+                alert("Username not found.");
+            }
+        }
+
+        // ---- 3. Load the profile ----
+        if (username) {
+
+            fetch("/cgi-bin/web_profile.exe?username=" + encodeURIComponent(username))
+                .then(response => response.text())
+                .then(data => {
+
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(data, "text/html");
+                    const paragraphs = doc.querySelectorAll("p");
+
+                    paragraphs.forEach(function (p) {
+
+                        const text = p.innerText;
+
+                        if (text.includes("Employee ID:")) {
+                            document.getElementById("employeeID").innerText =
+                                text.replace("Employee ID:", "").trim();
+                        }
+                        if (text.includes("Name:")) {
+                            document.getElementById("name").innerText =
+                                text.replace("Name:", "").trim();
+                        }
+                        if (text.includes("Department:")) {
+                            document.getElementById("department").innerText =
+                                text.replace("Department:", "").trim();
+                        }
+                        if (text.includes("Date Hired:")) {
+                            document.getElementById("dateHired").innerText =
+                                text.replace("Date Hired:", "").trim();
+                        }
+                        if (text.includes("Email:")) {
+                            document.getElementById("email").innerText =
+                                text.replace("Email:", "").trim();
+                        }
+                        if (text.includes("Contact Number:")) {
+                            document.getElementById("contactNumber").innerText =
+                                text.replace("Contact Number:", "").trim();
+                        }
+
+                    });
+
+                })
+                .catch(function (error) {
+                    console.error("Error loading profile:", error);
+                });
+
+        } else {
+
+            document.getElementById("employeeID").innerText = "No username";
+            document.getElementById("name").innerText = "No username";
+            document.getElementById("department").innerText = "No username";
+            document.getElementById("dateHired").innerText = "No username";
+            document.getElementById("email").innerText = "No username";
+            document.getElementById("contactNumber").innerText = "No username";
+
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Settings</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="dashboard-page">
+
+    <div class="dashboard">
+
+        <aside class="sidebar">
+
+            <nav>
+                <a href="dashboard.html">Dashboard</a>
+                <a href="employees.html">Employees</a>
+                <a href="admin-settings.html" class="active">Settings</a>
+            </nav>
+
+            <a href="login.html" class="logout">Logout</a>
+
+        </aside>
+
+        <main class="main-content">
+
+            <div class="top-bar">
+                <h1>Settings</h1>
+
+                <div class="admin">
+                    Admin 
+                </div>
+            </div>
+
+            <div class="settings-card">
+
+                <h2>Account Information</h2>
+
+                <label>Username</label>
+                <input type="text" value="admin" readonly>
+
+                <h2>Security</h2>
+
+                <label>New Password</label>
+                <input type="password">
+
+                <label>Confirm Password</label>
+                <input type="password">
+
+                <button type="button" class="save-btn" onclick="saveAdminPassword()">
+                 Save Changes
+                </button>
+
+            </div>
+
+        </main>
+
+    </div>
+<script>
+
+function saveAdminPassword() {
+
+    const newPassword =
+        document.querySelectorAll(
+            'input[type="password"]'
+        )[0].value;
+
+    const confirmPassword =
+        document.querySelectorAll(
+            'input[type="password"]'
+        )[1].value;
+
+    if (newPassword === "") {
+        alert("Please enter a new password.");
+        return;
+    }
+
+    if (newPassword !== confirmPassword) {
+        alert("Passwords do not match.");
+        return;
+    }
+
+    fetch(
+    "/cgi-bin/web_admin_password.exe?password=" +
+    encodeURIComponent(newPassword)
+)
+    .then(function(response) {
+    return response.text();
+})
+    .then(function(data) {
+    window.location.href = "login.html";
+})
+    .catch(function(error) {
+    console.error("Error:", error);
+    alert("Something went wrong.");
+});
+}
+
+</script>
+</body>
+</html>

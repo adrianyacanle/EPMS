@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>Employee Dashboard</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body class="dashboard-page">
+
+    <div class="dashboard">
+
+        <aside class="sidebar">
+
+            <nav>
+             <a href="employee-dashboard.html" class="active">Dashboard</a>
+             <a id="profileLink" href="my-profile.html">My Profile</a>
+             <a id="settingsLink" href="#">Settings</a>
+            </nav>
+
+            <a href="login.html" class="logout">Logout</a>
+
+        </aside>
+
+        <main class="main-content">
+
+            <div class="top-bar">
+                <h1>Employee Dashboard</h1>
+
+                <div class="admin">
+                    Employee 
+                </div>
+            </div>
+
+            <div class="welcome">
+             <h2 id="welcomeMessage">Welcome!</h2>
+             <p>Here's your employee information.</p>
+            </div> 
+
+<div class="profile-card">
+
+    <h2>My Profile</h2>
+
+    <div class="profile-info">
+        <p><strong>Employee ID:</strong> <span id="employeeID">Loading...</span></p>
+
+        <p><strong>Name:</strong> <span id="name">Loading...</span></p>
+
+        <p><strong>Department:</strong> <span id="department">Loading...</span></p>
+
+        <p><strong>Date Hired:</strong> <span id="dateHired">Loading...</span></p>
+
+        <p><strong>Email:</strong> <span id="email">Loading...</span></p>
+
+        <p><strong>Contact Number:</strong> <span id="contactNumber">Loading...</span></p>
+    </div>
+
+    <button
+        class="edit-profile-btn"
+        onclick="editProfile()"
+    >
+        Edit Profile
+    </button>
+
+</div>
+        </main>
+
+    </div>
+    <script>
+      const params =
+    new URLSearchParams(window.location.search);
+
+const username =
+    params.get("username");
+
+
+if (username) {
+
+    document.getElementById("profileLink").href =
+        "my-profile.html?username=" +
+        encodeURIComponent(username);
+
+if (username) {
+
+    document.getElementById("profileLink").href =
+        "my-profile.html?username=" +
+        encodeURIComponent(username);
+
+    document.getElementById("settingsLink").href =
+        "employee-settings.html?username=" +
+        encodeURIComponent(username);
+
+}        
+
+
+    fetch(
+        "/cgi-bin/web_profile.exe?username=" +
+        encodeURIComponent(username)
+    )
+
+    .then(response => response.text())
+
+    .then(data => {
+
+        const parser =
+            new DOMParser();
+
+        const doc =
+            parser.parseFromString(data, "text/html");
+
+        const paragraphs =
+            doc.querySelectorAll("p");
+
+
+        paragraphs.forEach(function(p) {
+
+            const text =
+                p.textContent.trim();
+
+
+            if (text.includes("Employee ID:")) {
+
+                document.getElementById("employeeID").textContent =
+                    text.replace("Employee ID:", "").trim();
+
+            }
+
+
+            if (text.includes("Name:")) {
+
+                const name =
+                    text.replace("Name:", "").trim();
+
+                document.getElementById("name").textContent =
+                    name;
+
+                document.getElementById("welcomeMessage").textContent =
+                    "Welcome, " + name + "!";
+
+            }
+
+
+            if (text.includes("Department:")) {
+
+                document.getElementById("department").textContent =
+                    text.replace("Department:", "").trim();
+
+            }
+
+
+            if (text.includes("Date Hired:")) {
+
+                document.getElementById("dateHired").textContent =
+                    text.replace("Date Hired:", "").trim();
+
+            }
+
+
+            if (text.includes("Email:")) {
+
+                document.getElementById("email").textContent =
+                    text.replace("Email:", "").trim();
+
+            }
+
+
+            if (text.includes("Contact Number:")) {
+
+                document.getElementById("contactNumber").textContent =
+                    text.replace("Contact Number:", "").trim();
+
+            }
+
+        });
+
+    })
+
+    .catch(function(error) {
+
+        console.error(
+            "Error loading employee information:",
+            error
+        );
+
+    });
+
+}
+
+
+function editProfile() {
+
+    if (username) {
+
+        window.location.href =
+            "my-profile.html?username=" +
+            encodeURIComponent(username);
+
+    }
+
+}
+function editProfile() {
+
+    const params =
+        new URLSearchParams(window.location.search);
+
+    const username =
+        params.get("username");
+
+    if (username) {
+
+        window.location.href =
+            "edit-profile.html?username=" +
+            encodeURIComponent(username);
+
+    } else {
+
+        alert("Username not found.");
+
+    }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Employee Profile Management System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="login-page">
+
+        <div class="image-section">
+            <img src="icon.png" alt="Employee Management">
+        </div>
+
+        <div class="login-section">
+
+            <h1>Employee Profile Management System</h1>
+
+            <h2>Login</h2>
+
+            <form action="/cgi-bin/web_login.exe" method="post">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username">
+
+                <br><br>
+
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password">
+
+                <br><br>
+
+                <button type="submit">Login</button>
+                <p class="register-text">
+                  Don't have an account?
+                 <a href="registration.html">Register as Employee</a>
+                </p>
+            </form>
+
+        </div>
+
+    </div>
+
+</body>
+</html>

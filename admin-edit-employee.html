@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Employee</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="dashboard-page">
+
+    <div class="dashboard">
+
+        <aside class="sidebar">
+
+            <nav>
+                <a href="dashboard.html">Dashboard</a>
+                <a href="employees.html" class="active">Employees</a>
+                <a href="admin-settings.html">Settings</a>
+            </nav>
+
+            <a href="login.html" class="logout">Logout</a>
+
+        </aside>
+
+        <main class="main-content">
+
+            <div class="top-bar">
+
+                <h1>Edit Employee</h1>
+
+                <div class="admin">
+                    Admin 
+                </div>
+
+            </div>
+
+            <div class="profile-card">
+
+                <h2>Edit Employee Information</h2>
+
+                <form id="editEmployeeForm">
+
+                    <input
+                        type="hidden"
+                        id="username"
+                        name="username"
+                    >
+
+                    <label for="email">
+                        Email
+                    </label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        required
+                    >
+
+                    <label for="contact">
+                        Contact Number
+                    </label>
+
+                    <input
+                        type="text"
+                        id="contact"
+                        name="contact"
+                        required
+                    >
+
+                    <label for="department">
+                        Department
+                    </label>
+
+                    <select
+                        id="department"
+                        name="department"
+                        required
+                    >
+
+                        <option value="">
+                            Select Department
+                        </option>
+
+                        <option value="IT">
+                            IT
+                        </option>
+
+                        <option value="Human Resources">
+                            Human Resources
+                        </option>
+
+                        <option value="Finance">
+                            Finance
+                        </option>
+
+                        <option value="Accounting">
+                            Accounting
+                        </option>
+
+                        <option value="Marketing">
+                            Marketing
+                        </option>
+
+                        <option value="Sales">
+                            Sales
+                        </option>
+
+                        <option value="Operations">
+                            Operations
+                        </option>
+
+                    </select>
+
+                    <button type="submit">
+                        Save Changes
+                    </button>
+
+                </form>
+
+            </div>
+
+        </main>
+
+    </div>
+    <script>
+
+const params =
+    new URLSearchParams(window.location.search);
+
+const username =
+    params.get("username");
+
+if (username) {
+
+    document.getElementById("username").value =
+        username;
+
+    fetch(
+        "/cgi-bin/web_profile.exe?username=" +
+        encodeURIComponent(username)
+    )
+
+    .then(response => response.text())
+
+    .then(data => {
+
+        const parser =
+            new DOMParser();
+
+        const doc =
+            parser.parseFromString(data, "text/html");
+
+        const paragraphs =
+            doc.querySelectorAll("p");
+
+        paragraphs.forEach(function(p) {
+
+            const text =
+                p.textContent.trim();
+
+            if (text.includes("Email:")) {
+
+                document.getElementById("email").value =
+                    text.replace("Email:", "").trim();
+
+            }
+
+            if (text.includes("Contact Number:")) {
+
+                document.getElementById("contact").value =
+                    text.replace(
+                        "Contact Number:",
+                        ""
+                    ).trim();
+
+            }
+
+            if (text.includes("Department:")) {
+
+                document.getElementById("department").value =
+                    text.replace(
+                        "Department:",
+                        ""
+                    ).trim();
+
+            }
+
+        });
+
+    })
+
+    .catch(function(error) {
+
+        console.error(
+            "Error loading employee:",
+            error
+        );
+
+    });
+
+}
+
+document.getElementById("editEmployeeForm")
+    .addEventListener(
+        "submit",
+        function(event) {
+
+            event.preventDefault();
+
+            const username =
+                document.getElementById("username").value;
+
+            const email =
+                document.getElementById("email").value;
+
+            const contact =
+                document.getElementById("contact").value;
+
+            const department =
+                document.getElementById("department").value;
+
+            const url =
+                "/cgi-bin/web_admin_update.exe?" +
+                "username=" +
+                encodeURIComponent(username) +
+                "&email=" +
+                encodeURIComponent(email) +
+                "&contact=" +
+                encodeURIComponent(contact) +
+                "&department=" +
+                encodeURIComponent(department);
+
+            window.location.href = url;
+
+        }
+    );
+
+</script>
+</body>
+</html>

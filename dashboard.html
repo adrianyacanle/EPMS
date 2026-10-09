@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="dashboard-page">
+    <div class="dashboard">
+
+    <aside class="sidebar">
+
+
+        <nav>
+            <a href="dashboard.html" class="active">Dashboard</a>
+            <a href="employees.html">Employees</a>
+            <a href="admin-settings.html">Settings</a>
+        </nav>
+        <a href="login.html" class="logout">Logout</a>
+    </aside>
+    
+   <main class="main-content">
+
+    <div class="top-bar">
+        <h1>Dashboard</h1>
+
+        <div class="admin">
+            Admin 
+        </div>
+    </div>
+
+    <div class="welcome">
+        <h2>Welcome, Admin!</h2>
+        <p>Here's an overview of your employees.</p>
+    </div>
+
+    <div class="dashboard-cards">
+
+    <div class="card">
+        <h3>Total Employees</h3>
+        <p id="totalEmployees">Loading...</p>
+    </div>
+
+    <div class="card">
+        <h3>IT Employees</h3>
+        <p id="itEmployees">Loading...</p>
+    </div>
+
+    <div class="card">
+        <h3>HR Employees</h3>
+        <p id="hrEmployees">Loading...</p>
+    </div>
+
+</div>
+    <div class="employee-section">
+
+    <div class="section-header">
+        <h2>Recent Employees</h2>
+        <button onclick="window.location.href='employees.html'">
+        View All
+        </button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Employee ID</th>
+                <th>Name</th>
+                <th>Department</th>
+                <th>Date Hired</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+        <tbody id="recentEmployees">
+        <tr>
+        <td colspan="5">Loading...</td>
+        </tr>
+        </tbody>
+    </table>
+
+</main>
+</div>
+
+<script>
+
+fetch("/cgi-bin/web_admin_stats.exe")
+
+    .then(response => response.text())
+
+    .then(data => {
+
+        const parser = new DOMParser();
+
+        const doc =
+            parser.parseFromString(data, "text/html");
+
+        document.getElementById("totalEmployees").textContent =
+            doc.getElementById("total").textContent;
+
+        document.getElementById("itEmployees").textContent =
+            doc.getElementById("it").textContent;
+
+        document.getElementById("hrEmployees").textContent =
+            doc.getElementById("hr").textContent;
+
+    })
+
+    .catch(error => {
+
+        console.error("Error loading employee statistics:", error);
+
+    });
+    fetch("/cgi-bin/web_employees.exe")
+
+    .then(response => response.text())
+
+    .then(data => {
+
+        const parser =
+            new DOMParser();
+
+        const doc =
+            parser.parseFromString(data, "text/html");
+
+        const rows =
+            doc.querySelectorAll("tr");
+
+        const tableBody =
+            document.getElementById("recentEmployees");
+
+        tableBody.innerHTML = "";
+
+        rows.forEach(function(row) {
+
+            const cells =
+                row.querySelectorAll("td");
+
+            if (cells.length === 5) {
+
+                const newRow =
+                    document.createElement("tr");
+
+                newRow.innerHTML = `
+                    <td>${cells[0].textContent}</td>
+                    <td>${cells[1].textContent}</td>
+                    <td>${cells[2].textContent}</td>
+                    <td>${cells[3].textContent}</td>
+                    <td>${cells[4].innerHTML}</td>
+                `;
+
+                tableBody.appendChild(newRow);
+
+            }
+
+        });
+
+    })
+
+    .catch(error => {
+
+        console.error(
+            "Error loading employees:",
+            error
+        );
+
+    });
+</script>
+
+</body>
+</html>

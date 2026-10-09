@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Settings</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .settings-card h2 { margin: 0 0 18px; color: #123a73; }
+        .settings-card .section { margin-bottom: 40px; }
+        .settings-card label {
+            display: block; margin: 0 0 10px; font-weight: 600; color: #222;
+        }
+        .settings-card input {
+            width: 100%; padding: 16px; margin-bottom: 22px;
+            border: 1px solid #d5dbe5; border-radius: 8px;
+            font-size: 15px; font-family: inherit; box-sizing: border-box;
+        }
+        .settings-card input:focus { outline: none; border-color: #1a6bb5; }
+        .save-btn {
+            padding: 16px 24px; border: none; border-radius: 8px;
+            background: #1a6bb5; color: #fff; font-weight: 700;
+            font-size: 15px; font-family: inherit; cursor: pointer;
+        }
+        .save-btn:hover { background: #145a9a; }
+        .msg { margin-top: 16px; font-weight: 600; }
+        .msg.ok { color: #1a7f37; }
+        .msg.err { color: #c62828; }
+    </style>
+</head>
+<body class="dashboard-page">
+    <div class="dashboard">
+
+        <aside class="sidebar">
+            <nav>
+                <a href="#" onclick="goTo('employee-dashboard.html')">Dashboard</a>
+                <a href="#" onclick="viewProfile()">My Profile</a>
+                <a href="#" class="active" onclick="goTo('employee-settings.html')">Settings</a>
+            </nav>
+            <a href="login.html" class="logout" onclick="sessionStorage.removeItem('username')">Logout</a>
+        </aside>
+
+        <main class="main-content">
+            <div class="top-bar">
+                <h1>Settings</h1>
+                <div class="admin">Employee</div>
+            </div>
+
+            <div class="profile-card settings-card">
+                <form id="settingsForm">
+
+                    <div class="section">
+                        <h2>Account Information</h2>
+                        <label for="username">Username</label>
+                        <input type="text" id="username" required>
+                    </div>
+
+                    <div class="section">
+                        <h2>Security</h2>
+
+                        <label for="newPassword">New Password</label>
+                        <input type="password" id="newPassword">
+
+                        <label for="confirmPassword">Confirm Password</label>
+                        <input type="password" id="confirmPassword">
+                    </div>
+
+                    <button type="submit" class="save-btn">Save Changes</button>
+                    <div class="msg" id="msg"></div>
+
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // ---- Get the username (URL first, then saved) ----
+        const params = new URLSearchParams(window.location.search);
+        let username = params.get("username");
+
+        if (username) {
+            sessionStorage.setItem("username", username);
+        } else {
+            username = sessionStorage.getItem("username");
+        }
+
+        function goTo(page) {
+            if (username) {
+                window.location.href = page + "?username=" + encodeURIComponent(username);
+            } else {
+                window.location.href = page;
+            }
+        }
+
+        function viewProfile() {
+            goTo("my-profile.html");
+        }
+
+        // ---- Show current username in the box ----
+        document.getElementById("username").value = username || "";
+
+        function showMsg(text, ok) {
+            const el = document.getElementById("msg");
+            el.textContent = text;
+            el.className = "msg " + (ok ? "ok" : "err");
+        }
+
+        // ---- Save changes ----
+        document.getElementById("settingsForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const newName = document.getElementById("username").value.trim();
+            const newPass = document.getElementById("newPassword").value;
+            const confirm = document.getElementById("confirmPassword").value;
+
+            if (!newName) {
+                showMsg("Username cannot be empty.", false);
+                return;
+            }
+            if (newPass !== confirm) {
+                showMsg("Passwords do not match.", false);
+                return;
+            }
+
+            fetch("/cgi-bin/update_account.exe", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: "username=" + encodeURIComponent(username) +
+                      "&newusername=" + encodeURIComponent(newName) +
+                      "&newpassword=" + encodeURIComponent(newPass)
+            })
+            .then(r => r.text())
+            .then(text => {
+                if (text.trim().startsWith("OK")) {
+                    username = newName;
+                    sessionStorage.setItem("username", username);
+                    document.getElementById("newPassword").value = "";
+                    document.getElementById("confirmPassword").value = "";
+                    showMsg("Changes saved.", true);
+                } else {
+                    showMsg("Failed: " + text.trim(), false);
+                }
+            })
+            .catch(() => showMsg("Could not reach the server.", false));
+        });
+    </script>
+</body>
+</html>
